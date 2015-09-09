@@ -2,7 +2,7 @@
 
 huff_node::huff_node()
 {
-	char letter='\0';
+	letter='\0';
 	weight = 0;
 	parent = false;
 	lchild = -1;
@@ -11,7 +11,7 @@ huff_node::huff_node()
 
 huff_node::huff_node(char l,int w)
 {
-	char letter=l;
+	letter=l;
 	weight = w;
 	parent = -1;
 	lchild = -1;
@@ -38,15 +38,6 @@ huffman_tree::huffman_tree()
 	char_code[i]="";
 }
 
-void huff_node::clear()
-{
-	char letter='\0';
-	weight = 0;
-	parent = false;
-	lchild = -1;
-	rchild = -1;
-}
-
 void huffman_tree::precode(FILE* infile)
 {
 	unsigned char x;
@@ -58,11 +49,10 @@ void huffman_tree::precode(FILE* infile)
 		x = fgetc(infile);///////////////////get a -1 at the last!!!!!!!
 		if(x==255) break;
 		//cout<<long(x)<<endl;//test
-		//system("pause"); 
 		source_length++;
 		num_char[x]++;
 	}
-	cout<<endl<<"原文本长度："<<source_length<<endl;
+	cout<<endl<<"原文本长度："<<source_length<<endl;//test
 	
 	for(int i=0;i<oo;i++) //insert all the charaters into the nodes
 	{
@@ -143,7 +133,7 @@ void huffman_tree::coding(int loc,string code)
 	if(node[loc].isleaf())
 	{
 		char_code[node[loc].letter]=code;
-		//cout<<long(node[loc].letter)<<' '<<node[loc].letter<<' '<<code<<endl;//test
+		//cout<<int(node[loc].letter)<<' '<<node[loc].letter<<' '<<code<<endl;//test
 		return;
 	}
 	coding(node[loc].lchild,code+"0");
@@ -152,6 +142,8 @@ void huffman_tree::coding(int loc,string code)
 
 void huffman_tree::compact(FILE* infile,FILE* outfile)
 {
+	//cout<<"source_length:"<<source_length<<endl;//test
+	//cout<<"size:"<<size<<endl;//test
 	fwrite(&source_length,sizeof(unsigned long),1,outfile);//length of the file
 	target_length++;
 	fwrite(&size,sizeof(int),1,outfile);//the number of all the charaters
@@ -163,7 +155,7 @@ void huffman_tree::compact(FILE* infile,FILE* outfile)
 	for(int i=0;i<oo/2;i++)
 	{
 		temp = char_code[i];  
-		len = temp.length();//最长编码可能有20个！！！！！！
+		len = temp.length();//最长编码可能有20位！！！！！！
 		if(len>0)
 		{
 			fwrite(&i,1,1,outfile);
@@ -221,6 +213,7 @@ void huffman_tree::compact(FILE* infile,FILE* outfile)
 	}
 	if((l>0)&&(l<8)) //last word
 	{
+		//cout<<l<<' ';//test
 		while(l<8)
 		{
 			c = c<<1;
@@ -228,6 +221,7 @@ void huffman_tree::compact(FILE* infile,FILE* outfile)
 		}
 		fwrite(&c,1,1,outfile);
 		target_length++;
+		//cout<<"||||||||||"<<endl;//test
 	}
 	cout<<"压缩后文本长度："<<target_length<<endl;
 	double div = double(target_length)/double(source_length);
@@ -236,20 +230,21 @@ void huffman_tree::compact(FILE* infile,FILE* outfile)
 
 void huffman_tree::encode(string sourcefile,string targetfile)
 {
+	//cout<<"3"<<endl;//test 3
 	FILE* infile,*outfile;
 	infile = fopen(sourcefile.c_str(),"rb");
 	if(infile==NULL)
 	{
-		cout<<endl<<"待压缩文件名无效！！请重新输入..."<<endl<<endl;
+		cout<<endl<<"待压缩文件名无效！！请重新输入..."<<endl;
 		return; 
 	}
 	outfile = fopen(targetfile.c_str(),"wb");
 	if(outfile==NULL)
 	{
-		cout<<endl<<"目标文件名无效！！请重新输入..."<<endl<<endl;
+		cout<<endl<<"目标文件名无效！！请重新输入..."<<endl;
 		return; 
 	}
-	
+	//cout<<"1"<<endl;//test 1
 	precode(infile);
 	fclose(infile);
 	infile = fopen(sourcefile.c_str(),"rb");
@@ -266,13 +261,13 @@ void huffman_tree::decode(string sourcefile,string targetfile)
 	infile = fopen(sourcefile.c_str(),"rb");
 	if(infile==NULL)
 	{
-		cout<<endl<<"待解压缩文件名无效！！请重新输入..."<<endl<<endl;
+		cout<<"待解压缩文件名无效！！请重新输入..."<<endl;
 		return; 
 	}
 	outfile = fopen(targetfile.c_str(),"wb");
 	if(outfile==NULL)
 	{
-		cout<<endl<<"目标文件名无效！！请重新输入..."<<endl<<endl;
+		cout<<"目标文件名无效！！请重新输入..."<<endl;
 		return; 
 	}
 	
@@ -342,7 +337,8 @@ void huffman_tree::decode(string sourcefile,string targetfile)
 			}
 		}
 	}
-	target_length--;// 不知为什么会多一个 ？？？ 
+	
+	target_length--; //不知为何会多一个？？？？？ 
 	cout<<endl<<"原文本长度："<<target_length<<endl;
 	cout<<"解压后文本长度："<<source_length<<endl; 
 	cout<<endl<<"解压缩成功！！"<<endl<<endl;
@@ -368,7 +364,13 @@ string huffman_tree::uits(long f,int len)
 void huffman_tree::canceal()
 {
 	for(int i=0;i<node_size;i++)
-	node[i].clear();
+	{
+		node[i].letter='\0';
+		node[i].weight = 0;
+		node[i].parent = false;
+		node[i].lchild = -1;
+		node[i].rchild = -1;
+	}
 	source_length=0;
 	target_length=0;
 	node_size = 0;
@@ -379,7 +381,13 @@ void huffman_tree::canceal()
 huffman_tree::~huffman_tree()
 {
 	for(int i=0;i<node_size;i++)
-	node[i].clear();
+	{
+		node[i].letter='\0';
+		node[i].weight = 0;
+		node[i].parent = false;
+		node[i].lchild = -1;
+		node[i].rchild = -1;
+	}
 	source_length=0;
 	target_length=0;
 	node_size = 0;

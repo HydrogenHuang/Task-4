@@ -1,4 +1,4 @@
-const int oo=512;
+const int oo=254;
 
 #ifndef _HUFFMAN_H_
 #define  _HUFFMAN_H_
@@ -21,7 +21,6 @@ struct huff_node{
 	huff_node(char,int);
 	bool isleaf();
 	bool operator > (const huff_node&);
-	void clear();
 };
 
 class huffman_tree{
